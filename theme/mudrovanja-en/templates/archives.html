@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Included from archives.html -->
+<section id="content" class="body">
+<h1>Archives for {{ SITENAME }}</h1>
+
+{% for year, date_year in dates|groupby('date.year')|sort(reverse=NEWEST_FIRST_ARCHIVES) %}
+	<h1>{{ year }}</h1>
+	<hr/>
+    <ol id="posts-list" class="hfeed">
+	{% for month, articles in date_year|groupby('date.month')|sort(reverse=NEWEST_FIRST_ARCHIVES) %}
+		{% for article in articles %}
+			<li>
+			  <article class="hentry">
+				<header><h2><a href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a></h2></header>
+				<div class="entry-content">
+					<footer class="post-info">
+						<abbr class="published" title="{{ article.date.isoformat() }}">
+							{{ article.locale_date }}
+						</abbr>
+					</footer>
+					{{ article.summary }}
+				</div><!-- /.entry-content -->
+			  </article>
+			</li>
+		{% endfor %}
+	{% endfor %}
+	</ol><!-- /#posts-list -->
+	<hr/>
+{% endfor %}
+</section><!-- /#content -->
+{% endblock %}

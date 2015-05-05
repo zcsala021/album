@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title -%}
+	{% if page.category == 'yearalbum' %}
+{{ page.title }} - All pictures - {{ SITENAME }}
+	{% elif page.category == 'album' %}
+{{ page.title }} - Album - {{ SITENAME }}
+	{% elif page.category == 'picture' %}
+{{ page.title }} - Picture - {{ SITENAME }}
+	{% else %}
+{{ page.title }} - Page - {{ SITENAME }}
+	{% endif %}
+{%- endblock %}
+
+{% block header %}
+{% if page.category != 'topalbum' %}
+	<div id="head">
+		<div id="headinner">
+			<h2>
+				<div class="breadcrumbs">
+				{% for parent in page.parents %}
+					<a href="{{ SITEURL }}/{{ parent.url }}">{{ parent.title }}</a> » 
+				{% endfor %}
+				{{ page.title }}
+				</div>
+			</h2>
+		</div>
+	</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+	<div id="container">
+		<div class="inner">
+		{% if page.category == 'yearalbum' %}
+			<table width="100%">
+			{% for child in page.children|sort(attribute='url', reverse=True) %}
+				<tr>
+					<td>
+						<div class="albumthumb">
+							{% if child.orgwdth|int > child.orghght|int %}
+						  		{% set imgwdth = MAX_ALBM_SIZE %}
+						  		{% set imghght = (MAX_ALBM_SIZE * child.orghght|int) // child.orgwdth|int %}
+						  	{% else %}
+						  		{% set imghght = MAX_ALBM_SIZE %}
+						  		{% set imgwdth = (MAX_ALBM_SIZE * child.orgwdth|int) // child.orghght|int %}
+						  	{% endif %}
+							<a href='{{ SITEURL }}/{{ child.url }}'>
+								<img src='{{ page.ablpicurl }}' alt='{{ child.title }}' width='{{ imgwdth }}' height='{{ imghght }}' />
+							</a>
+						</div>
+					</td>
+					<td valign="top">
+						<div class="albumdata">
+							<div class="albumname">
+								{{ child.title }}
+							</div>
+							<br/>
+							<div class="picnum">Number of pictures: <strong>{{ child.children|length }}</strong></div>
+							{% if child.location %}
+								<br/>
+								<div class="imglocation">Location: <strong>{{ child.location }}</strong></div>
+							{% endif %}
+							{% if child.date %}
+								<br/>
+								<div class="imgdate">Date: {{ child.date|strftime('%d %B %Y') }}</div>
+							{% endif %}
+							{% if child.content %}
+							<hr class="hrstyle"/>
+							<div class="imgdescription">{{ child.content }}</div>
+						{% endif %}
+						</div>
+					</td>
+				</tr>
+		  	{% endfor %}
+		  	</table>
+		{% elif page.category == 'topalbum' %}
+			{# Just a little redirection to page with newest year album #}
+		{% elif page.category == 'album' or page.category == 'picture' %}
+			{% if page.category == 'album' %}
+				{% set pagelist = page.children %}
+			{% else %}
+				{% set pagelist = page.parent.children %}
+			{% endif %}
+			{% set numpic = pagelist|length %}
+			<table class="albumpicture" cellspacing='5' width='100%'>
+			{% if numpic > 0 %}
+				{% set sortedpics = pagelist|sort(attribute='slug', reverse=False) %}
+				{% if page.category == 'album' %}
+					{% set prevpic = sortedpics[ -1 % numpic ] %}
+					{% set nextpic = sortedpics[ 1 % numpic ] %}
+					{% set thispic = sortedpics[0] %}
+				{% else %}
+					{% set picindex = pagelist.index(page) %}
+					{% set prevpic = sortedpics[(picindex-1) % numpic] %}
+					{% set nextpic = sortedpics[(picindex+1) % numpic] %}
+					{% set thispic = sortedpics[picindex] %}
+				{% endif %}
+				<tr>
+					<td>
+						<div class="mediumimg">
+							{% if thispic.orgwdth|int > thispic.orghght|int %}
+						  		{% set imgwdth = MAX_RSZD_SIZE %}
+						  		{% set imghght = (MAX_RSZD_SIZE * thispic.orghght|int) // thispic.orgwdth|int  %}
+						  	{% else %}
+						  		{% set imghght = MAX_RSZD_SIZE %}
+						  		{% set imgwdth = (MAX_RSZD_SIZE * thispic.orgwdth|int) // thispic.orghght|int %}
+						  	{% endif %}
+						  	<img src='{{ page.ablpicurl }}' alt='{{ page.title }}' width='{{ imgwdth }}' height='{{ imghght }}' />
+						</div>
+					</td>
+					<td width="80%" valign="bottom">
+						<table width='100%'>
+							<tr>
+								<td valign="top">
+									<div class="imgcaption">{{ page.title }}</div>
+									<br/>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<div class="imgfullsize">
+										<a href="{{ page.ablpicurl }}" target="_blank" title="Opens in new window or browser tab">Link to original image</a>
+									</div>
+								</td>
+							</tr>
+							{% if page.location %}
+							<tr>
+								<td>
+									<div class="imglocation">Location: {{ page.location }}</div>
+								</td>
+							</tr>
+							{% endif %}
+							{% if page.date %}
+							<tr>
+								<td>
+									<div class="imgdate">Date: {{ page.date|strftime('%d %B %Y') }}</div>
+								</td>
+							</tr>
+							{% endif %}
+							{% if page.content %}
+							<tr>
+								<td>
+									<hr class="hrstyle" />
+									<div class="imgdescription">{{ page.content }}</div>
+									<hr class="hrstyle"/>
+								</td>
+							</tr>
+							{% endif %}
+							<tr>
+								<td align='right'>
+									<br/>
+									<div class="imgnavigation">
+										« <a href='{{ SITEURL }}/{{ prevpic.url }}#{{ prevpic.basename }}'>Previous</a>  |  <a href='{{ SITEURL }}/{{ nextpic.url }}#{{ nextpic.basename }}'>Next</a> »
+									</div>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			{% endif %}
+			</table>
+			<br/>
+			{% if page.category == 'picture' %}
+				{% include "disqus_script.html" %}
+			{% endif %}
+		{% else %}
+		{% endif %}
+		</div>
+	</div>
+	
+	<div id="sidebar">
+		<div class="inner">
+		{% if page.category == 'topalbum' %}
+			{# Do nothing #}
+		{% elif page.category == 'yearalbum' %}
+			{% for parentchld in page.parent.children|sort(attribute='slug', reverse=True) %}
+				<p>
+					<div class="sidenavitem">
+						{% if parentchld.title == page.title %}
+							{{ parentchld.title }}
+						{% else %}
+							<a href='{{ SITEURL }}/{{ parentchld.url }}'>{{ parentchld.title }}</a>
+						{% endif %}
+					</div>
+				</p>
+			{% endfor %}
+		{% elif page.category == 'album' or page.category == 'picture' %}
+			{% if page.category == 'album' %}
+				{% set pagelist = page.children|sort(attribute='slug', reverse=False) %}
+			{% else %}
+				{% set pagelist = page.parent.children|sort(attribute='slug', reverse=False) %}
+			{% endif %}
+			{% for child in pagelist %}
+				{% if child.orgwdth|int > child.orghght|int %}
+					{% set imgwdth = MAX_THMB_SIZE %}
+					{% set imghght = (MAX_THMB_SIZE * child.orghght|int) // child.orgwdth|int %}
+				{% else %}
+					{% set imghght = MAX_THMB_SIZE %}
+					{% set imgwdth = (MAX_THMB_SIZE * child.orgwdth|int) // child.orghght|int %}
+				{% endif %}
+				<p>
+					<div class="albumthumb">
+						<a id='{{ child.basename }}' href="{{ SITEURL }}/{{ child.url }}">
+							<img src="{{ child.ablpicurl }}" alt='{{ child.title }}' width='{{ imgwdth }}' height='{{ imghght }}' /> 
+						</a>
+					</div>
+				</p>
+		  	{% endfor %}
+		{% else %}
+			{{ page.category }}
+			Unknown page category, cannot create sidebar.
+		{% endif %}
+		</div>
+	</div>
+{% endblock %}
