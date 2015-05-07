@@ -1,4 +1,9 @@
 #!/bin/bash
+#title			:abload-add-album.sh
+#description	:This script adds an album to the image hoster abload.de
+#author			:Zoltan Csala
+#github			:https://github.com/zcsala021/album
+#=======================================================================
 
 # Creates album on Abload.de and fills it with pictures
 # so that it is ready to be used in static album
@@ -11,13 +16,21 @@ slugify() {
 	python -c "import sys; from slugify import slugify; print slugify(sys.argv[1])" "$@"
 }
 
-ABLDIR=`dirname $0`
-ABLFNCS=${ABLDIR}/abload-functions.sh
+OLDPATH=$PATH
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+echo $PATH | grep -q "$DIR" -
+if [ $? -eq 1 ]; then
+	export PATH=$PATH:$DIR
+fi
+
+ABLFNCS=$DIR/abload-functions.sh
 
 if [ -f ${ABLFNCS} ]; then
 	. ${ABLFNCS}
 else
 	echo "(E) File ${ABLFNCS} does not exist."
+	export PATH=$OLDPATH
 	exit 1
 fi
 
@@ -26,6 +39,7 @@ read_config_file ${ABLCONFIG} u
 
 if [ $? -eq 1 ]; then
 	echo Error reading config file ${ABLCONFIG} .
+	export PATH=$OLDPATH
 	exit 1
 fi
 
@@ -56,20 +70,24 @@ done
 # Check parameters
 if [ -z "${albumpath}" ]; then
 	echo "(E) Missing album path (option -a or --album)."
+	export PATH=$OLDPATH
 	exit 1
 fi
 if [ -z "${location}" ]; then
 	echo "(E) Missing album location (option -l or --location)."
+	export PATH=$OLDPATH
 	exit 1
 fi
 if [ -z "${title}" ]; then
 	echo "(E) Missing album title (option -t or --title)."
+	export PATH=$OLDPATH
 	exit 1
 fi
 
 # Ako jedan od direktorijuma ne postoji, izlazimo
 if [ ! -d "${abllocalsrc}" ]; then
 	echo "(E) Missing local picture source: ${abllocalsrc}."
+	export PATH=$OLDPATH
 	exit 1
 fi
 
@@ -108,7 +126,7 @@ fi
 
 # Make full path for album
 PELALBUM=${YEAR}/${ALBUMNAME}
-echo "Ime albuma u PELALBUM-u: ${PELALBUM}"
+echo "(I) Ime albuma u PELALBUM-u: ${PELALBUM}"
 
 # Proveri da li ovaj album postoji
 DESTALBUM=${abllocaldest}/${PELALBUM}
@@ -126,7 +144,7 @@ cd "${abllocaldest}" || exit 1
 
 # Create metadata file for toplevel year album, if it does not exist
 if [ ! -f ${YEAR}.${ablmetadataext} ]; then
-	echo "Creating metadata file ${YEAR}.${ablmetadataext} ..."
+	echo "(I) Creating metadata file ${YEAR}.${ablmetadataext} ..."
 	# Point album to initially show placeholder, i.e. picture
 	# of empty album
 	cat <<METEOF > ${YEAR}.${ablmetadataext}
@@ -152,9 +170,9 @@ cd ${DESTYEARALBUM} || exit 1
 
 # Create metadata file for album, if it does not exist
 if [ ! -f ${ALBUMNAME}.${ablmetadataext} ]; then
-	echo "Creating metadata file ${ALBUMNAME}.${ablmetadataext} ..."
+	echo "(I) Creating metadata file ${ALBUMNAME}.${ablmetadataext} ..."
 	ABLGALLID=`abload-gallery-create.sh "${YEAR}-${ALBUMNAME}"`
-	echo "Created album ${YEAR}-${ALBUMNAME} on Abload.de ... (gallery ID: ${ABLGALLID})"
+	echo "(I) Created album ${YEAR}-${ALBUMNAME} on Abload.de ... (gallery ID: ${ABLGALLID})"
 	
 	if [ ! -z "${ABLGALLID}" ]; then
 		cat << METEOF > ${ALBUMNAME}.${ablmetadataext}
@@ -181,7 +199,7 @@ else
 	echo "(W) Metadata file ${ALBUMNAME}.${ablmetadataext} exits, skipping ..."
 	# Get ABLGALLID for next step (integer of minimum 7 digits)
 	ABLGALLID=`grep -Po '\d{7,}' ${ALBUMNAME}.${ablmetadataext}`
-	echo "Got gallery ID created previously: ${ABLGALLID}"
+	echo "(I) Got gallery ID created previously: ${ABLGALLID}"
 fi
 
 # If we can't get into destination directory, get out
@@ -212,7 +230,7 @@ upload_pics() {
 			PICH=`identify -format "%h" "$PIC"`
 			
 			ABLPICURL=`abload-pic-upload.sh ${TEMPNAME} ${ABLGALLID}`
-			echo "Uploaded ${PICBASENAME}.${picext} to Abload.de ... (picture URL: ${ABLPICURL})"
+			echo "(I) Uploaded ${PICBASENAME}.${picext} to Abload.de ... (picture URL: ${ABLPICURL})"
 			
 			if [ -z ${ABLPICURL} ]; then
 				echo "(E): Error uploading picture to Abload.de: URL is empty."
@@ -249,7 +267,7 @@ METEOF
 			# Add empty line that separates metadata from page content
 			echo "" >> "$PICLEANAME.${ablmetadataext}"
 			
-			echo "Created metadata file $PICLEANAME.${ablmetadataext}."
+			echo "(I) Created metadata file $PICLEANAME.${ablmetadataext}."
 			rm -f ${TEMPNAME}
 		else
 			echo "(W) Metadata file $PICLEANAME.${ablmetadataext} exists, skipping ..."

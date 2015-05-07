@@ -12,8 +12,7 @@ if [ "$1" != "" -a "$1" == "-d" ]; then
 	DEBUG=1
 fi
 
-ABLDIR=`dirname $0`
-ABLFNCS=${ABLDIR}/abload-functions.sh
+ABLFNCS=$PWD/abload-functions.sh
 
 if [ -f ${ABLFNCS} ]; then
 	. ${ABLFNCS}
@@ -37,10 +36,10 @@ if [ -d ${HOME}/sys/run ]; then
 else
 	COOKIEFILE=/tmp/${ABLOAD_COOKIE_FILE}
 fi
-ABLOADHOST=abload.de
+ABLOADHOST=www.abload.de
 
 # login
-RESPONSE=`curl -s -F "name=${abluser}" -F "password=${ablpassword}" -F "cookie=on" -b ${COOKIEFILE} -c ${COOKIEFILE} http://www.abload.de/login.php?next=/`
+RESPONSE=`curl -s -F "name=${abluser}" -F "password=${ablpassword}" -F "cookie=on" -b ${COOKIEFILE} -c ${COOKIEFILE} http://${ABLOADHOST}/login.php?next=/`
 
 if [[ $RESPONSE =~ 'login_php' ]]; then
 	[ "$DEBUG" == "1" ] && echo "Login to ${ABLOADHOST} failed."

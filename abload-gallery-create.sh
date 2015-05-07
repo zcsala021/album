@@ -1,11 +1,9 @@
 #!/bin/bash    
 #title			:abload-gallery-create.sh
-#description	:This script uploads a image to the image hoster abload.de
-#author			:Bubelbub <bubelbub@gmail.com>
-#date			:20130412
-#version		:1.1
-#github			:http://github.com/Bubelbub/Abload.de-Tools
-#==============================================================================
+#description	:This script creates a gallery on image hoster abload.de
+#author			:Zoltan Csala
+#github			:https://github.com/zcsala021/album
+#=======================================================================
 
 urlencode() {
 	python -c "import sys, urllib as ul; print ul.quote(sys.argv[1])" "$@"
@@ -24,13 +22,19 @@ if [ $# -eq 2 ]; then
 	GALDESC="-d desc=$GALDESC"
 fi
 
-ABLDIR=`dirname $0`
-ABLFNCS=${ABLDIR}/abload-functions.sh
+OLDPATH=$PATH
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+echo $PATH | grep -q "$DIR" -
+if [ $? -eq 1 ]; then
+	export PATH=$PATH:$DIR
+fi
+ABLFNCS=$DIR/abload-functions.sh
 
 if [ -f ${ABLFNCS} ]; then
 	. ${ABLFNCS}
 else
-	echo File ${ABLFNCS} does not exist.
+	echo "(E) File ${ABLFNCS} does not exist."
 	exit 1
 fi
 
@@ -38,7 +42,7 @@ ABLCONFIG=${HOME}/.abloadrc
 read_config_file ${ABLCONFIG} u
 
 if [ $? -eq 1 ]; then
-	echo Error reading config file ${ABLCONFIG}
+	echo "(E) Error reading config file ${ABLCONFIG}"
 	exit 1
 fi
 
@@ -49,33 +53,36 @@ if [ -d ${HOME}/sys/run ]; then
 else
 	COOKIEFILE=/tmp/${ABLOAD_COOKIE_FILE}
 fi
+ABLOADHOST=www.abload.de
 
 # Get root
-RESPONSE=`curl -s -c ${COOKIEFILE} -G http://www.abload.de/`
+RESPONSE=`curl -s -c ${COOKIEFILE} -G http://${ABLOADHOST}/`
 
 # Hash login
-RESPONSE=`curl -s -c ${COOKIEFILE} -G http://www.abload.de/calls/hashlogin.php -d name=${abluser} -d hash=${ablpasshash} -d cookie=1`
+RESPONSE=`curl -s -c ${COOKIEFILE} -G http://${ABLOADHOST}/calls/hashlogin.php -d name=${abluser} -d hash=${ablpasshash} -d cookie=1`
 
 if [ "$RESPONSE" != "logged in" ]; then
 	echo $RESPONSE
 	exit 1
 fi
 
-RESPONSE=`curl -s -b ${COOKIEFILE} -c ${COOKIEFILE} -G http://www.abload.de/calls/userXML.php`
+RESPONSE=`curl -s -b ${COOKIEFILE} -c ${COOKIEFILE} -G http://${ABLOADHOST}/calls/userXML.php`
 # This step can be useful to verify password salt (<setting name="salt" value="saltValue" />)
 # echo Response from userXml.php:
 # echo $RESPONSE
 
 # Create gallery on Abload.de
-RESPONSE=`curl -s -b ${COOKIEFILE} -H "User-Agent: Abloadlib/0.1" -H "Connection: Keep-Alive" -H "Host: www.abload.de" -G 'http://www.abload.de/calls/createGallery.php' $GALNAME $GALDESC`
+RESPONSE=`curl -s -b ${COOKIEFILE} -H "User-Agent: Abloadlib/0.1" -H "Connection: Keep-Alive" -H "Host: \${ABLOADHOST}" -G "http://\${ABLOADHOST}/calls/createGallery.php" $GALNAME $GALDESC`
 
 # Get gallery ID of such freshly created gallery
 GALLERYID=`grep -Po '\d+' <<< $RESPONSE`
 
 if [ ! -z $GALLERYID ]; then
 	echo $GALLERYID
+	export PATH=$OLDPATH
 	exit 0
 else
 	echo $RESPONSE
+	export PATH=$OLDPATH
 	exit 1
 fi

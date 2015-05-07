@@ -1,16 +1,14 @@
 #!/bin/bash -       
-#title			:upload.sh
+#title			:abload-pic-upload.sh
 #description	:This script uploads a image to the image hoster abload.de
-#author			:Bubelbub <bubelbub@gmail.com>
-#date			:20130412
-#version		:1.1
-#github			:http://github.com/Bubelbub/Abload.de-Tools
-#==============================================================================
+#author			:Zoltan Csala
+#github			:https://github.com/zcsala021/album
+#=========================================================================
 
 # check if parameter 1 is a file
 if [ "$1" == "" ] || [ ! -f $1 ]; then
-	echo "Parameter 1 should be a (image) file."
-	exit 0
+	echo "(E) Parameter 1 should be a (image) file."
+	exit 1
 fi
 
 # check parameter 2 - optional gallery ID
