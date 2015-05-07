@@ -169,3 +169,12 @@ body {
 #credit {
 	padding-right: 1%;
 }
+
+/* --- disqus css -- */
+
+div#disqus_thread {
+	font-family:  "Bitstream Vera Sans", "Liberation Sans", Verdana, Tahoma, Arial, "Trebuchet MS", Helvetica, sans-serif;
+	color: #722E00;
+}
+
+/*--- end disqus css --*/

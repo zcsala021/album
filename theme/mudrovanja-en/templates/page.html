@@ -46,7 +46,7 @@
 						  		{% set imgwdth = (MAX_ALBM_SIZE * child.orgwdth|int) // child.orghght|int %}
 						  	{% endif %}
 							<a href='{{ SITEURL }}/{{ child.url }}'>
-								<img src='{{ page.ablpicurl }}' alt='{{ child.title }}' width='{{ imgwdth }}' height='{{ imghght }}' />
+								<img src='{{ child.ablpicurl }}' alt='{{ child.title }}' width='{{ imgwdth }}' height='{{ imghght }}' />
 							</a>
 						</div>
 					</td>
