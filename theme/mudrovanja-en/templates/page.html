@@ -2,13 +2,13 @@
 
 {% block title -%}
 	{% if page.category == 'yearalbum' %}
-{{ page.title }} - All pictures - {{ SITENAME }}
+{{ page.title|striptags }} - All pictures - {{ SITENAME }}
 	{% elif page.category == 'album' %}
-{{ page.title }} - Album - {{ SITENAME }}
+{{ page.title|striptags }} - Album - {{ SITENAME }}
 	{% elif page.category == 'picture' %}
-{{ page.title }} - Picture - {{ SITENAME }}
+{{ page.title|striptags }} - Picture - {{ SITENAME }}
 	{% else %}
-{{ page.title }} - Page - {{ SITENAME }}
+{{ page.title|striptags }} - Page - {{ SITENAME }}
 	{% endif %}
 {%- endblock %}
 
@@ -19,9 +19,9 @@
 			<h2>
 				<div class="breadcrumbs">
 				{% for parent in page.parents %}
-					<a href="{{ SITEURL }}/{{ parent.url }}">{{ parent.title }}</a> » 
+					<a href="{{ SITEURL }}/{{ parent.url }}">{{ parent.title|striptags }}</a> » 
 				{% endfor %}
-				{{ page.title }}
+				{{ page.title|striptags }}
 				</div>
 			</h2>
 		</div>
@@ -46,14 +46,14 @@
 						  		{% set imgwdth = (MAX_ALBM_SIZE * child.orgwdth|int) // child.orghght|int %}
 						  	{% endif %}
 							<a href='{{ SITEURL }}/{{ child.url }}'>
-								<img src='{{ child.ablpicurl }}' alt='{{ child.title }}' width='{{ imgwdth }}' height='{{ imghght }}' />
+								<img src='{{ child.ablpicurl }}' alt='{{ child.title|striptags }}' width='{{ imgwdth }}' height='{{ imghght }}' />
 							</a>
 						</div>
 					</td>
 					<td valign="top">
 						<div class="albumdata">
 							<div class="albumname">
-								{{ child.title }}
+								{{ child.title|striptags }}
 							</div>
 							<br/>
 							<div class="picnum">Number of pictures: <strong>{{ child.children|length }}</strong></div>
@@ -63,7 +63,7 @@
 							{% endif %}
 							{% if child.date %}
 								<br/>
-								<div class="imgdate">Date: {{ child.date|strftime('%d %B %Y') }}</div>
+								<div class="imgdate">Date: {{ child.date|strftime('%d. %B %Y.') }}</div>
 							{% endif %}
 							{% if child.content %}
 							<hr class="hrstyle"/>
@@ -106,14 +106,14 @@
 						  		{% set imghght = MAX_RSZD_SIZE %}
 						  		{% set imgwdth = (MAX_RSZD_SIZE * thispic.orgwdth|int) // thispic.orghght|int %}
 						  	{% endif %}
-						  	<img src='{{ page.ablpicurl }}' alt='{{ page.title }}' width='{{ imgwdth }}' height='{{ imghght }}' />
+						  	<img src='{{ page.ablpicurl }}' alt='{{ page.title|striptags }}' width='{{ imgwdth }}' height='{{ imghght }}' />
 						</div>
 					</td>
 					<td width="80%" valign="bottom">
 						<table width='100%'>
 							<tr>
 								<td valign="top">
-									<div class="imgcaption">{{ page.title }}</div>
+									<div class="imgcaption">{{ page.title|striptags }}</div>
 									<br/>
 								</td>
 							</tr>
@@ -134,7 +134,7 @@
 							{% if page.date %}
 							<tr>
 								<td>
-									<div class="imgdate">Date: {{ page.date|strftime('%d %B %Y') }}</div>
+									<div class="imgdate">Date: {{ page.date|strftime('%d. %B %Y.') }}</div>
 								</td>
 							</tr>
 							{% endif %}
@@ -178,9 +178,9 @@
 				<p>
 					<div class="sidenavitem">
 						{% if parentchld.title == page.title %}
-							{{ parentchld.title }}
+							{{ parentchld.title|striptags }}
 						{% else %}
-							<a href='{{ SITEURL }}/{{ parentchld.url }}'>{{ parentchld.title }}</a>
+							<a href='{{ SITEURL }}/{{ parentchld.url }}'>{{ parentchld.title|striptags }}</a>
 						{% endif %}
 					</div>
 				</p>
@@ -202,7 +202,7 @@
 				<p>
 					<div class="albumthumb">
 						<a id='{{ child.basename }}' href="{{ SITEURL }}/{{ child.url }}">
-							<img src="{{ child.ablpicurl }}" alt='{{ child.title }}' width='{{ imgwdth }}' height='{{ imghght }}' /> 
+							<img src="{{ child.ablpicurl }}" alt='{{ child.title|striptags }}' width='{{ imgwdth }}' height='{{ imghght }}' /> 
 						</a>
 					</div>
 				</p>
