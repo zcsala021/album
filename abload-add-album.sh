@@ -34,6 +34,11 @@ else
 	exit 1
 fi
 
+if [ $# -eq 0 ]; then
+	show_help $0
+	exit 0
+fi
+
 ABLCONFIG=${HOME}/.abloadrc
 read_config_file ${ABLCONFIG} u
 

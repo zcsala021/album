@@ -38,3 +38,18 @@ read_config_file () {
 	
 	return 0
 }
+
+show_help () {
+	local prg=$1
+	echo "$prg [options]"
+	echo
+	echo "-a|--album=<path>    <path> to directory with pictures"
+	echo "-l|--location=<text> <text> is name of the location where pictures were taken (surrounded with double quotes)"
+	echo "-t|--title=<text>    <text> is album title (surrounded with double quotes)"
+	echo "-u|--author=<name>   <name> of author of pictures in this album"
+	echo ""
+	echo "Example:"
+	echo ""
+	echo "$prg -a=/path/to/album -l=\"Album location\" [-t=\"Album title\"] [-u=\"Name Surname\"]"
+	echo
+}
